@@ -15,7 +15,7 @@ import net.tigereye.chestcavity.registration.CCDamageSource;
 import net.tigereye.chestcavity.registration.CCOrganScores;
 import net.tigereye.chestcavity.registration.CCStatusEffects;
 import net.tigereye.chestcavity.util.CCMixinThing;
-import net.tigereye.chestcavity.util.CommonOrganUtil;
+import net.tigereye.chestcavity.util.OrganUtil;
 
 import java.util.List;
 
@@ -224,7 +224,7 @@ public class OrganTickListeners {
             return;                                                                 //TODO: make enderman water-teleporting dependent on hydrophobia
         }
         if(entity.isInWaterOrRain()){
-            CommonOrganUtil.teleportRandomly(entity,hydrophobia*32);
+            OrganUtil.teleportRandomly(entity,hydrophobia*32);
         }
     }
 

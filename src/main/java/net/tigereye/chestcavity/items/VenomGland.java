@@ -19,7 +19,7 @@ import net.tigereye.chestcavity.chestcavities.instance.ChestCavityInstance;
 import net.tigereye.chestcavity.listeners.OrganOnHitListener;
 import net.tigereye.chestcavity.registration.CCFoodComponents;
 import net.tigereye.chestcavity.registration.CCStatusEffects;
-import net.tigereye.chestcavity.util.CommonOrganUtil;
+import net.tigereye.chestcavity.util.OrganUtil;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class VenomGland extends Item implements OrganOnHitListener {
                 }
             }
             //failure conditions passed, the venom gland now delivers its payload
-            List<EffectInstance> effects = CommonOrganUtil.getStatusEffects(organ);
+            List<EffectInstance> effects = OrganUtil.getStatusEffects(organ);
             if(!effects.isEmpty()){
                 for(EffectInstance effect : effects){
                     target.addEffect(effect);
@@ -68,7 +68,7 @@ public class VenomGland extends Item implements OrganOnHitListener {
     @Override
     public void appendHoverText(ItemStack itemStack, World world, List<ITextComponent> tooltip, ITooltipFlag tooltipContext) {
         super.appendHoverText(itemStack,world,tooltip,tooltipContext);
-        if(!CommonOrganUtil.getStatusEffects(itemStack).isEmpty()) {
+        if(!OrganUtil.getStatusEffects(itemStack).isEmpty()) {
             PotionUtils.addPotionTooltip(itemStack, tooltip, 1);
         }
     }

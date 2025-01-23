@@ -4,42 +4,45 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Food;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.FoodStats;
 import net.tigereye.chestcavity.interfaces.ChestCavityEntity;
 import net.tigereye.chestcavity.listeners.EffectiveFoodScores;
 import net.tigereye.chestcavity.listeners.OrganFoodCallback;
 import net.tigereye.chestcavity.registration.CCOrganScores;
 import net.tigereye.chestcavity.util.ChestCavityUtil;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-//@Mixin(FoodStats.class)
-public class MixinHungerManager { //If we can never make this work, possibly extend it and do all the data, then make the one in the player = a new extended one
+@Mixin(FoodStats.class)
+public class MixinHungerManager {
 
-
-        //@Shadow
+        @Shadow
         private int tickTimer;
         //@Shadow
         private int foodLevel;
         //@Shadow
         private float saturationLevel;
-        //@Shadow
+        @Shadow
         private float exhaustionLevel;
 
         private ChestCavityEntity CC_player = null;
 
-        //@Inject(at = @At("HEAD"), method = "tick", cancellable = true)
+        @Inject(at = @At("HEAD"), method = "tick", cancellable = true)
         public void chestCavityUpdateMixin(PlayerEntity player, CallbackInfo ci) {
-                System.out.println("CHESTCAVITY TEST UPDATE MIXIN CALLED");
                 if(CC_player == null){
-                        System.out.println("PLAYER WAS NULL");
                         ChestCavityEntity.of(player).ifPresent(ccPlayerEntityInterface -> CC_player = ccPlayerEntityInterface);
                 }
                 tickTimer = ChestCavityUtil.applySpleenMetabolism(CC_player.getChestCavityInstance(),this.tickTimer);
-                System.out.println("CHESTCAVITY ENDED");
         }
 
 
-        //@ModifyArgs(method = "eat(Lnet/minecraft/item/Item;Lnet/minecraft/item/ItemStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/FoodStats;eat(IF)V"))
+        @ModifyArgs(method = "eat(Lnet/minecraft/item/Item;Lnet/minecraft/item/ItemStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/FoodStats;eat(IF)V"))
         public void chestCavityEatMixin(Args args, Item item, ItemStack stack) {
                 if(item.isEdible() && CC_player != null){
                         //saturation gains are equal to hungerValue*saturationModifier*2
@@ -67,7 +70,7 @@ public class MixinHungerManager { //If we can never make this work, possibly ext
                 }
         }
 
-        //@ModifyVariable(at = @At("HEAD"), ordinal = 0, method = "addExhaustion")
+        @ModifyVariable(at = @At("HEAD"), ordinal = 0, method = "addExhaustion")
         public float chestCavityAddExhaustionMixin(float exhaustion) {
                 if(CC_player != null){
                         if(this.exhaustionLevel != this.exhaustionLevel){

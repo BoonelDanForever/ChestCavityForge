@@ -6,7 +6,7 @@
   "mixins": [
     "MixinEnchantmentHelper",
     "MixinEntity",
-    "MixinHanshake",
+    "MixinHungerManager",
     "MixinLivingEntity",
     "MixinLivingEntity$MixinCowEntity",
     "MixinLivingEntity$MixinCreeperEntity",
@@ -16,13 +16,11 @@
     "MixinLivingEntity$MixinSheepEntity",
     "MixinLivingEntity$MixinWitherEntity",
     "MixinPotionEntity",
-    "MixinRecipeUpdate",
     "MixinStatusEffect",
     "MixinStatusEffectInstance",
     "ResourceReloadMixin"
   ],
   "client": [
-    "MixinItem"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CCKeybindings {
+
     private static String ORGAN_ABILITY_KEY_CATEGORY = "organ_abilities";
     public static KeyBinding UTILITY_ABILITIES;
     public static ResourceLocation UTILITY_ABILITIES_ID = new ResourceLocation(ChestCavity.MODID,"utility_abilities");

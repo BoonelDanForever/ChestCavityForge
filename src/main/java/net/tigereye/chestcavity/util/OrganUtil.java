@@ -1,7 +1,10 @@
 package net.tigereye.chestcavity.util;
 
+
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;
@@ -19,23 +22,87 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
 import net.tigereye.chestcavity.ChestCavity;
 import net.tigereye.chestcavity.chestcavities.instance.ChestCavityInstance;
 import net.tigereye.chestcavity.interfaces.CCStatusEffectInstance;
 import net.tigereye.chestcavity.interfaces.ChestCavityEntity;
+import net.tigereye.chestcavity.registration.CCEnchantments;
 import net.tigereye.chestcavity.registration.CCOrganScores;
 import net.tigereye.chestcavity.registration.CCStatusEffects;
 
 import java.util.*;
 
-public class CommonOrganUtil {
+public class OrganUtil {
+
+    public static void displayOrganQuality(Map<ResourceLocation,Float> organQualityMap, List<ITextComponent> tooltip){
+        organQualityMap.forEach((organ,score) -> {
+            String tier;
+            if(organ.equals(CCOrganScores.HYDROALLERGENIC)){
+                if(score >= 2){
+                    tier = "Severely ";
+                }
+                else{
+                    tier = "";
+                }
+            }
+            else {
+                if (score >= 1.5f) {
+                    tier = "Supernatural ";
+                } else if (score >= 1.25) {
+                    tier = "Exceptional ";
+                } else if (score >= 1) {
+                    tier = "Good ";
+                } else if (score >= .75f) {
+                    tier = "Average ";
+                } else if (score >= .5f) {
+                    tier = "Poor ";
+                } else if (score >= 0) {
+                    tier = "Pathetic ";
+                } else if (score >= -.25f) {
+                    tier = "Slightly Reduces ";
+                } else if (score >= -.5f) {
+                    tier = "Reduces ";
+                } else if (score >= -.75f) {
+                    tier = "Greatly Reduces ";
+                } else {
+                    tier = "Cripples ";
+                }
+            }
+            TranslationTextComponent text = new TranslationTextComponent("organscore." + organ.getNamespace() + "." + organ.getPath(), tier);
+            tooltip.add(text);
+        });
+    }
+
+    public static void displayCompatibility(ItemStack itemStack, World world, List<ITextComponent> tooltip, ITooltipFlag tooltipContext) {
+        CompoundNBT tag = itemStack.getTag();
+        if(EnchantmentHelper.getItemEnchantmentLevel(CCEnchantments.MALPRACTICE.get(),itemStack) > 0){
+            ITextComponent text = new StringTextComponent("Unsafe to use");
+            tooltip.add(text);
+        }
+        else if (tag != null && tag.contains(ChestCavity.COMPATIBILITY_TAG.toString())
+                && EnchantmentHelper.getItemEnchantmentLevel(CCEnchantments.O_NEGATIVE.get(),itemStack) <= 0) {
+            tag = tag.getCompound(ChestCavity.COMPATIBILITY_TAG.toString());
+            String name = tag.getString("name");
+            ITextComponent text = new StringTextComponent("Only Compatible With: "+name);
+            tooltip.add(text);
+        }
+        else{
+            ITextComponent text = new StringTextComponent("Safe to Use");
+            tooltip.add(text);
+        }
+    }
 
     public static void explode(LivingEntity entity, float explosionYield) {
         if (!entity.level.isClientSide) {
@@ -87,7 +154,7 @@ public class CommonOrganUtil {
             ((PlayerEntity)entity).causeFoodExhaustion(bombs*.6f);
         }
         for(int i = 0; i < bombs;i++){
-            cc.projectileQueue.add(CommonOrganUtil::spawnDragonBomb);
+            cc.projectileQueue.add(OrganUtil::spawnDragonBomb);
         }
         entity.addEffect(new EffectInstance(CCStatusEffects.DRAGON_BOMB_COOLDOWN.get(), ChestCavity.config.DRAGON_BOMB_COOLDOWN, 0, false, false, true));
     }
@@ -97,7 +164,7 @@ public class CommonOrganUtil {
             ((PlayerEntity)entity).causeFoodExhaustion(projectiles*.1f);
         }
         for(int i = 0; i < projectiles;i++){
-            cc.projectileQueue.add(CommonOrganUtil::spawnSpit);
+            cc.projectileQueue.add(OrganUtil::spawnSpit);
         }
         entity.addEffect(new EffectInstance(CCStatusEffects.FORCEFUL_SPIT_COOLDOWN.get(), ChestCavity.config.FORCEFUL_SPIT_COOLDOWN, 0, false, false, true));
     }
@@ -107,7 +174,7 @@ public class CommonOrganUtil {
             ((PlayerEntity)entity).causeFoodExhaustion(ghastly*.3f);
         }
         for(int i = 0; i < ghastly;i++){
-            cc.projectileQueue.add(CommonOrganUtil::spawnGhastlyFireball);
+            cc.projectileQueue.add(OrganUtil::spawnGhastlyFireball);
         }
         entity.addEffect(new EffectInstance(CCStatusEffects.GHASTLY_COOLDOWN.get(), ChestCavity.config.GHASTLY_COOLDOWN, 0, false, false, true));
     }
@@ -117,7 +184,7 @@ public class CommonOrganUtil {
             ((PlayerEntity)entity).causeFoodExhaustion(pyromancy*.1f);
         }
         for(int i = 0; i < pyromancy;i++){
-            cc.projectileQueue.add(CommonOrganUtil::spawnPyromancyFireball);
+            cc.projectileQueue.add(OrganUtil::spawnPyromancyFireball);
         }
         entity.addEffect(new EffectInstance(CCStatusEffects.PYROMANCY_COOLDOWN.get(), ChestCavity.config.PYROMANCY_COOLDOWN, 0, false, false, true));
     }
@@ -127,7 +194,7 @@ public class CommonOrganUtil {
             ((PlayerEntity)entity).causeFoodExhaustion(shulkerBullets*.3f);
         }
         for(int i = 0; i < shulkerBullets;i++){
-            cc.projectileQueue.add(CommonOrganUtil::spawnShulkerBullet);
+            cc.projectileQueue.add(OrganUtil::spawnShulkerBullet);
         }
         entity.addEffect(new EffectInstance(CCStatusEffects.SHULKER_BULLET_COOLDOWN.get(), ChestCavity.config.SHULKER_BULLET_COOLDOWN, 0, false, false, true));
     }
@@ -326,7 +393,7 @@ public class CommonOrganUtil {
         while(silkScore >= 1) {
             silkScore--;
             hungerCost += 4;
-            cc.projectileQueue.add(CommonOrganUtil::spawnSilk);
+            cc.projectileQueue.add(OrganUtil::spawnSilk);
         }
         if(player != null){
             player.getFoodData().addExhaustion(hungerCost);

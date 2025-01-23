@@ -1,3 +1,4 @@
+run
 run_client
 run_server
 build
@@ -7,3 +8,4 @@ gradle
 logs
 versions
 old_build.txt
+.DS_Store

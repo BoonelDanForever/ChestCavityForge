@@ -7,6 +7,7 @@ import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -40,6 +41,7 @@ public class ChestCavity {
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		bus.addListener(this::setup);
 		bus.addListener(this::doClientStuff);
+		bus.addListener(this::doServerStuff);
 
 		//Register mod resources
 		AutoConfig.register(CCConfig.class, GsonConfigSerializer::new);
@@ -62,10 +64,22 @@ public class ChestCavity {
 		CCKeybindings.init();
 	}
 
+	public void doServerStuff(FMLDedicatedServerSetupEvent event) {
+		//ServerPlayNetworking.registerGlobalReceiver(CCNetworkingPackets.RECEIVED_UPDATE_PACKET_ID, (server, player, handler, buf, sender) -> {
+		//    Optional<ChestCavityEntity> optional = ChestCavityEntity.of(player);
+		//    optional.ifPresent(chestCavityEntity -> NetworkUtil.ReadChestCavityReceivedUpdatePacket(chestCavityEntity.getChestCavityInstance()));
+		//});
+		//ServerPlayNetworking.registerGlobalReceiver(CCNetworkingPackets.HOTKEY_PACKET_ID, (server, player, handler, buf, sender) -> {
+		//    Optional<ChestCavityEntity> optional = ChestCavityEntity.of(player);
+		//    optional.ifPresent(chestCavityEntity -> NetworkUtil.ReadChestCavityHotkeyPacket(chestCavityEntity.getChestCavityInstance(),buf));
+		//});
+	}
+
 	public static boolean isDebugMode() {
 		return DEBUG_MODE;
 	}
 
+	//net.tigereye.chestcavity.ChestCavity:printOnDebug
 	public static void printOnDebug(String stringToPrint) {
 		if(DEBUG_MODE) {
 			System.out.println("DEBUG: " + stringToPrint);

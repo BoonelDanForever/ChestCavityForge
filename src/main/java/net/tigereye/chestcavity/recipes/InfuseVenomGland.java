@@ -10,7 +10,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.tigereye.chestcavity.registration.CCItems;
 import net.tigereye.chestcavity.registration.CCRecipes;
-import net.tigereye.chestcavity.util.CommonOrganUtil;
+import net.tigereye.chestcavity.util.OrganUtil;
 
 public class InfuseVenomGland extends SpecialRecipe {
     public InfuseVenomGland(ResourceLocation id) {
@@ -69,7 +69,7 @@ public class InfuseVenomGland extends SpecialRecipe {
         }
         if(venomGland != null && potion != null){
             output = venomGland.copy();
-            CommonOrganUtil.setStatusEffects(output, potion);
+            OrganUtil.setStatusEffects(output, potion);
             return output;
         }
         return ItemStack.EMPTY;

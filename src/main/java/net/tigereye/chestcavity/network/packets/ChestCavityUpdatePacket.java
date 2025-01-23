@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class ChestCavityUpdatePacket {
-    private final boolean open;
-    private final int size;
-    private final Map<ResourceLocation,Float> organScoresMap;
+    private boolean open;
+    private int size;
+    private Map<ResourceLocation,Float> organScoresMap;
 
     public ChestCavityUpdatePacket(boolean open, int size, Map<ResourceLocation,Float> organScoresMap) {
         this.open = open;
@@ -54,7 +54,7 @@ public class ChestCavityUpdatePacket {
                 ChestCavityInstance instance = chestCavityEntity.getChestCavityInstance();
                 instance.opened = this.open;
                 instance.setOrganScores(this.organScoresMap);
-                //NetworkHandler.CHANNEL.sendToServer(new RecievedChestCavityUpdatePacket());
+                NetworkHandler.CHANNEL.sendToServer(new RecievedChestCavityUpdatePacket());
                 success.set(true);
             });
         }));

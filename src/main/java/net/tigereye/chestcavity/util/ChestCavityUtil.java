@@ -28,7 +28,10 @@ import net.tigereye.chestcavity.interfaces.ChestCavityEntity;
 import net.tigereye.chestcavity.listeners.*;
 import net.tigereye.chestcavity.registration.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class ChestCavityUtil {
@@ -285,7 +288,7 @@ public class ChestCavityUtil {
         if (!(source instanceof IndirectEntityDamageSource)) {
             return false;
         }
-        if(!CommonOrganUtil.teleportRandomly(cc.owner,ChestCavity.config.ARROW_DODGE_DISTANCE/dodge)){
+        if(!OrganUtil.teleportRandomly(cc.owner,ChestCavity.config.ARROW_DODGE_DISTANCE/dodge)){
             return false;
         }
         cc.owner.addEffect(new EffectInstance(CCStatusEffects.ARROW_DODGE_COOLDOWN.get(), (int) (ChestCavity.config.ARROW_DODGE_COOLDOWN/dodge), 0, false, false, true));
@@ -419,7 +422,7 @@ public class ChestCavityUtil {
 
     public static void forcefullyAddStack(ChestCavityInstance cc, ItemStack stack, int slot){
         if(!cc.inventory.canAddItem(stack)) {
-            if (cc.owner.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) && cc.owner instanceof PlayerEntity) {
+            if (!cc.inventory.canAddItem(stack) && cc.owner.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) && cc.owner instanceof PlayerEntity) {
                 if (!((PlayerEntity) cc.owner).inventory.add(stack)) {
                     cc.owner.spawnAtLocation(cc.inventory.removeItemNoUpdate(slot));
                 }
@@ -460,16 +463,16 @@ public class ChestCavityUtil {
 
     public static void insertWelfareOrgans(ChestCavityInstance cc){
         //urgently essential organs are: heart, spine, lung, and just a touch of strength
-        if(cc.getOrganScore(CCOrganScores.HEALTH) <= 0){
+        if(cc.getOrganScore(CCOrganScores.HEALTH) == 0){
             forcefullyAddStack(cc, new ItemStack(CCItems.ROTTEN_HEART.get()),4);
         }
-        if(cc.getOrganScore(CCOrganScores.BREATH_RECOVERY) <= 0){
+        if(cc.getOrganScore(CCOrganScores.BREATH_RECOVERY) == 0){
             forcefullyAddStack(cc, new ItemStack(CCItems.ROTTEN_LUNG.get()),3);
         }
-        if(cc.getOrganScore(CCOrganScores.NERVES) <= 0){
+        if(cc.getOrganScore(CCOrganScores.NERVES) == 0){
             forcefullyAddStack(cc, new ItemStack(CCItems.ROTTEN_SPINE.get()),13);
         }
-        if(cc.getOrganScore(CCOrganScores.STRENGTH) <= 0){
+        if(cc.getOrganScore(CCOrganScores.STRENGTH) == 0){
             forcefullyAddStack(cc, new ItemStack(Items.ROTTEN_FLESH,16),0);
         }
     }
@@ -507,29 +510,6 @@ public class ChestCavityUtil {
 
     public static EffectInstance onAddStatusEffect(ChestCavityInstance cc, EffectInstance effect) {
         return OrganAddStatusEffectCallback.organAddMobEffect(cc.owner, effect);
-    }
-
-    public static void onDeath(ChestCavityEntity entity){
-        ChestCavityInstance ccinstance = entity.getChestCavityInstance();
-        ccinstance.getChestCavityType().onDeath(ccinstance);
-        if(entity instanceof PlayerEntity){
-            PlayerEntity playerEntity = (PlayerEntity) entity;
-            if(!ChestCavity.config.KEEP_CHEST_CAVITY) {
-                Map<Integer,ItemStack> organsToKeep = new HashMap<>();
-                for (int i = 0; i < ccinstance.inventory.getContainerSize(); i++) {
-                    ItemStack organ = ccinstance.inventory.getItem(i);
-                    if(EnchantmentHelper.getItemEnchantmentLevel(CCEnchantments.O_NEGATIVE.get(),organ) >= 2){
-                        organsToKeep.put(i,organ.copy());
-                    }
-                }
-                ccinstance.compatibility_id = UUID.randomUUID();
-                generateChestCavityIfOpened(ccinstance);
-                for (Map.Entry<Integer,ItemStack> entry: organsToKeep.entrySet()) {
-                    ccinstance.inventory.setItem(entry.getKey(),entry.getValue());
-                }
-            }
-            insertWelfareOrgans(ccinstance);
-        }
     }
 
     public static float onHit(ChestCavityInstance cc, DamageSource source, LivingEntity target, float damage){
@@ -611,7 +591,7 @@ public class ChestCavityUtil {
                             livingEntity.hurt(DamageSource.indirectMagic(livingEntity, splash.getOwner()), allergy/26);
                         }
                         if (phobia > 0) {
-                            CommonOrganUtil.teleportRandomly(livingEntity,phobia*32);
+                            OrganUtil.teleportRandomly(livingEntity,phobia*32);
                         }
                     }
                 }

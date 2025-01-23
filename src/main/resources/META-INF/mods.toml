@@ -23,7 +23,7 @@ Perfectly Safe Extra Storage
 [[dependencies.chestcavity]]
     modId="cloth-config"
     mandatory=true
-    versionRange="[4.10.9,)"
+    versionRange="[4.14.64]"
     ordering="NONE"
 
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.

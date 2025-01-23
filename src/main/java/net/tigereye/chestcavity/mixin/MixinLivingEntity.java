@@ -40,8 +40,8 @@ import net.tigereye.chestcavity.listeners.LootRegister;
 import net.tigereye.chestcavity.registration.CCItems;
 import net.tigereye.chestcavity.registration.CCOrganScores;
 import net.tigereye.chestcavity.util.ChestCavityUtil;
-import net.tigereye.chestcavity.util.CommonOrganUtil;
 import net.tigereye.chestcavity.util.NetworkUtil;
+import net.tigereye.chestcavity.util.OrganUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -113,8 +113,7 @@ public class MixinLivingEntity extends Entity implements ChestCavityEntity {
 
     @Inject(at = @At("HEAD"), method = "dropEquipment")
     public void chestCavityLivingEntityDropInventoryMixin(CallbackInfo info){
-        //chestCavityInstance.getChestCavityType().onDeath(chestCavityInstance);
-        ChestCavityUtil.onDeath(this);
+        chestCavityInstance.getChestCavityType().onDeath(chestCavityInstance);
     }
 
     @ModifyVariable(at = @At("HEAD"), method = "addEffect", ordinal = 0)
@@ -197,7 +196,7 @@ public class MixinLivingEntity extends Entity implements ChestCavityEntity {
         }
 
         @ModifyVariable(at = @At(value = "CONSTANT", args = "floatValue=0.0F", ordinal = 0), ordinal = 0, method = "actuallyHurt")
-        public float chestCavityPlayerEntityOnHitMixin(float amount, DamageSource source){
+        public float chestCavitPlayerEntityOnHitMixin(float amount, DamageSource source){
             if(source.getEntity() instanceof LivingEntity){
                 Optional<ChestCavityEntity> cce = ChestCavityEntity.of(source.getEntity());
                 if(cce.isPresent()){
@@ -242,7 +241,7 @@ public class MixinLivingEntity extends Entity implements ChestCavityEntity {
                 at = @At(value = "RETURN", ordinal = 0)
                 )
         protected void interactMob(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResultType> info) {
-            CommonOrganUtil.milkSilk(this);
+            OrganUtil.milkSilk(this);
         }
     }
 
@@ -325,7 +324,7 @@ public class MixinLivingEntity extends Entity implements ChestCavityEntity {
                 at = @At(value = "HEAD")
         )
         protected void chestCavitySheared(SoundCategory shearedSoundCategory, CallbackInfo info) {
-            CommonOrganUtil.shearSilk(this);
+            OrganUtil.shearSilk(this);
         }
     }
 

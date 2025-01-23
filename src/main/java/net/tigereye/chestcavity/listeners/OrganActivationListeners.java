@@ -5,6 +5,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
@@ -18,7 +19,7 @@ import net.tigereye.chestcavity.registration.CCStatusEffects;
 import net.tigereye.chestcavity.registration.CCTags;
 import net.tigereye.chestcavity.util.CCMixinThing;
 import net.tigereye.chestcavity.util.ChestCavityUtil;
-import net.tigereye.chestcavity.util.CommonOrganUtil;
+import net.tigereye.chestcavity.util.OrganUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class OrganActivationListeners {
         }
         float explosion_yield = cc.getOrganScore(CCOrganScores.EXPLOSIVE);
         ChestCavityUtil.destroyOrgansWithKey(cc,CCOrganScores.EXPLOSIVE);
-        CommonOrganUtil.explode(entity, explosion_yield);
+        OrganUtil.explode(entity, explosion_yield);
         if(entity.isAlive()) {
             entity.addEffect(new EffectInstance(CCStatusEffects.EXPLOSION_COOLDOWN.get(), ChestCavity.config.EXPLOSION_COOLDOWN, 0, false, false, true));
         }
@@ -84,7 +85,7 @@ public class OrganActivationListeners {
 
         if(!entity.hasEffect(CCStatusEffects.DRAGON_BREATH_COOLDOWN.get())){
             entity.addEffect(new EffectInstance(CCStatusEffects.DRAGON_BREATH_COOLDOWN.get(), ChestCavity.config.DRAGON_BREATH_COOLDOWN, 0, false, false, true));
-            cc.projectileQueue.add(CommonOrganUtil::spawnDragonBreath);
+            cc.projectileQueue.add(OrganUtil::spawnDragonBreath);
         }
     }
 
@@ -97,7 +98,7 @@ public class OrganActivationListeners {
             return;
         }
         if(!entity.hasEffect(CCStatusEffects.DRAGON_BOMB_COOLDOWN.get())){
-            CommonOrganUtil.queueDragonBombs(entity,cc,(int)projectiles);
+            OrganUtil.queueDragonBombs(entity,cc,(int)projectiles);
         }
     }
 
@@ -110,7 +111,16 @@ public class OrganActivationListeners {
             return;
         }
         if(!entity.hasEffect(CCStatusEffects.FORCEFUL_SPIT_COOLDOWN.get())){
-            CommonOrganUtil.queueForcefulSpit(entity,cc,(int)projectiles);
+            OrganUtil.queueForcefulSpit(entity,cc,(int)projectiles);
+        }
+    }
+
+    //FORGE ONLY
+    protected static int getBurnDuration(ItemStack p_213997_1_) {
+        if (p_213997_1_.isEmpty()) {
+            return 0;
+        } else {
+            return net.minecraftforge.common.ForgeHooks.getBurnTime(p_213997_1_);
         }
     }
 
@@ -124,22 +134,12 @@ public class OrganActivationListeners {
         int fuelValue = 0;
         ItemStack itemStack = cc.owner.getItemBySlot(EquipmentSlotType.MAINHAND);
         if(itemStack != null && itemStack != ItemStack.EMPTY) {
-            try {
-                fuelValue = 10; //FuelRegistry.INSTANCE.get(itemStack.getItem());
-            }
-            catch (Exception e){
-                fuelValue = 0;
-            }
+            fuelValue = getBurnDuration(itemStack);
         }
         if(fuelValue == 0){
             itemStack = cc.owner.getItemBySlot(EquipmentSlotType.OFFHAND);
             if(itemStack != null && itemStack != ItemStack.EMPTY) {
-                try{
-                fuelValue = 10; //FuelRegistry.INSTANCE.get(itemStack.getItem());
-                }
-                catch (Exception e){
-                    fuelValue = 0;
-                }
+                fuelValue = getBurnDuration(itemStack);
             }
         }
         if(fuelValue == 0){
@@ -223,7 +223,7 @@ public class OrganActivationListeners {
             return;
         }
         if(!entity.hasEffect(CCStatusEffects.GHASTLY_COOLDOWN.get())){
-            CommonOrganUtil.queueGhastlyFireballs(entity,cc,(int)ghastly);
+            OrganUtil.queueGhastlyFireballs(entity,cc,(int)ghastly);
         }
     }
 
@@ -259,7 +259,7 @@ public class OrganActivationListeners {
         }
     }
 
-    public static void ActivatePyromancy(LivingEntity entity_, ChestCavityInstance cc){
+    public static void ActivatePyromancy(LivingEntity entity, ChestCavityInstance cc){
         //if(entity.world.isClient){
         //    return; //we are spawning entities, this is no place for a client
         //}
@@ -267,22 +267,8 @@ public class OrganActivationListeners {
         if(pyromancy < 1){
             return;
         }
-        if(!entity_.hasEffect(CCStatusEffects.PYROMANCY_COOLDOWN.get())){
-            CommonOrganUtil.queuePyromancyFireballs(entity_,cc,(int)pyromancy);
-            //if(entity_ instanceof PlayerEntity){
-            //    ((PlayerEntity)entity_).causeFoodExhaustion(pyromancy*.1f);
-            //}
-            //for(int i = 0; i < pyromancy;i++){
-            //    cc.projectileQueue.add(entity -> {
-            //        Vector3d entityFacing = entity.getLookAngle().normalize();
-            //        SmallFireballEntity smallFireballEntity = new SmallFireballEntity(entity.level, entity, entityFacing.x + entity.getRandom().nextGaussian() * .1, entityFacing.y, entityFacing.z + entity.getRandom().nextGaussian() * .1);
-            //        smallFireballEntity.absMoveTo(smallFireballEntity.getX(), entity.getY(0.5D) + 0.3D, smallFireballEntity.getZ());
-            //        entity.level.addFreshEntity(smallFireballEntity);
-            //        entityFacing = entityFacing.scale(-.2D);
-            //        entity.push(entityFacing.x,entityFacing.y,entityFacing.z);
-            //    });//OrganUtil::spawnPyromancyFireball);
-            //}
-            //entity_.addEffect(new EffectInstance(CCStatusEffects.PYROMANCY_COOLDOWN.get(), ChestCavity.config.PYROMANCY_COOLDOWN, 0, false, false, true));
+        if(!entity.hasEffect(CCStatusEffects.PYROMANCY_COOLDOWN.get())){
+            OrganUtil.queuePyromancyFireballs(entity,cc,(int)pyromancy);
         }
     }
 
@@ -295,7 +281,7 @@ public class OrganActivationListeners {
             return;
         }
         if(!entity.hasEffect(CCStatusEffects.SHULKER_BULLET_COOLDOWN.get())){
-            CommonOrganUtil.queueShulkerBullets(entity,cc,(int)projectiles);
+            OrganUtil.queueShulkerBullets(entity,cc,(int)projectiles);
         }
     }
 
@@ -306,7 +292,7 @@ public class OrganActivationListeners {
         if(entity.hasEffect(CCStatusEffects.SILK_COOLDOWN.get())){
             return;
         }
-        if(CommonOrganUtil.spinWeb(entity,cc, cc.getOrganScore(CCOrganScores.SILK))) {
+        if(OrganUtil.spinWeb(entity,cc, cc.getOrganScore(CCOrganScores.SILK))) {
             entity.addEffect(new EffectInstance(CCStatusEffects.SILK_COOLDOWN.get(),ChestCavity.config.SILK_COOLDOWN,0,false,false,true));
         }
     }

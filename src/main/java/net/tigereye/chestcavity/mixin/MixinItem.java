@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.tigereye.chestcavity.chestcavities.organs.OrganData;
 import net.tigereye.chestcavity.chestcavities.organs.OrganManager;
-import net.tigereye.chestcavity.util.ClientOrganUtil;
+import net.tigereye.chestcavity.util.OrganUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,9 +28,10 @@ public class MixinItem {
         if(OrganManager.GeneratedOrganData.containsKey(id)){
             OrganData data = OrganManager.GeneratedOrganData.get(id);
             if(!data.pseudoOrgan){
-                ClientOrganUtil.displayOrganQuality(data.organScores,tooltip);
-                ClientOrganUtil.displayCompatibility(stack,world,tooltip,context);
+                OrganUtil.displayOrganQuality(data.organScores,tooltip);
+                OrganUtil.displayCompatibility(stack,world,tooltip,context);
             }
         }
     }
+
 }

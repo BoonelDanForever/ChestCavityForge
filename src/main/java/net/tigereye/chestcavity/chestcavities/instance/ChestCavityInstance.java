@@ -43,7 +43,7 @@ public class ChestCavityInstance implements IInventoryChangedListener {
     public int projectileCooldown = 0;
     public int furnaceProgress = 0;
     public int photosynthesisProgress = 0;
-    public EnderCrystalEntity connectedCrystal = null; //In fabric its EndCrystalEntity, not EnderCrystalEntity
+    public EnderCrystalEntity connectedCrystal = null;
 
     //public FriendlyByteBuf updatePacket = null;
     public boolean updateInstantiated = false;

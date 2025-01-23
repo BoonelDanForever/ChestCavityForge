@@ -13,15 +13,12 @@ import java.util.Map;
 public class NetworkUtil {
     //S2C = SERVER TO CLIENT //I think
 
-    public static boolean SendS2CChestCavityUpdatePacket(ChestCavityInstance cc){ //FIXED THIS SO PUT IN CHANGELOG MAKE SURE PLEASE
+    public static boolean SendS2CChestCavityUpdatePacket(ChestCavityInstance cc){
         cc.updateInstantiated = true;
         if((!cc.owner.level.isClientSide()) && cc.owner instanceof ServerPlayerEntity) {
             ServerPlayerEntity spe = (ServerPlayerEntity) cc.owner;
-            if(spe.connection == null) {
-                return false;
-            }
             Map<ResourceLocation, Float> organScores = cc.getOrganScores();
-            NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> spe), new ChestCavityUpdatePacket(cc.opened, organScores.size(), organScores)); //Not PLAYER, it crashes when loading a world idk why
+            NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> spe), new ChestCavityUpdatePacket(cc.opened, organScores.size(), organScores));
             return true;
         }
         return false;
